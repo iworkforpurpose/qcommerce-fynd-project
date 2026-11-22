@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Supplement Shop</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./checkout.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <span class="shop-name">Supplement Shop</span>
+      <span id="cart-count" role="status">0 items added</span>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section id="shop" aria-labelledby="shop-heading">
+      <h1 id="shop-heading" tabindex="-1">Shop</h1>
+      <div id="shop-products" class="product-grid"></div>
+      <div class="shop-summary">
+        <div class="total">
+          <span>Order total</span>
+          <output data-order-total aria-label="Order total">₹0</output>
+        </div>
+        <a class="button" href="#cart">Go to Cart</a>
+      </div>
+    </section>
+
+    <section id="cart" aria-labelledby="cart-heading" hidden>
+      <a class="back-link" href="#shop">← Back to shop</a>
+      <h1 id="cart-heading" tabindex="-1">Cart</h1>
+      <div class="order-layout">
+        <div>
+          <div id="cart-products" class="product-list"></div>
+          <p id="cart-empty" class="empty-cart">Your cart is empty.</p>
+        </div>
+        <div class="summary">
+          <div class="total">
+            <span>Order total</span>
+            <output data-order-total aria-label="Order total">₹0</output>
+          </div>
+          <button id="go-to-checkout" class="button" type="button" disabled>Add items to continue</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="checkout" aria-labelledby="checkout-heading" hidden>
+      <a class="back-link" href="#cart">← Back to cart</a>
+      <h1 id="checkout-heading" tabindex="-1">Checkout</h1>
+      <div class="order-layout">
+        <div id="checkout-products" class="product-list"></div>
+        <form id="payment-form" class="summary" novalidate>
+          <label for="name">Name</label>
+          <input id="name" name="name" type="text" autocomplete="name" placeholder="Enter your name" required>
+          <p id="name-error" class="field-error" role="alert" hidden>Please enter your name to continue.</p>
+          <div class="total">
+            <span>Order total</span>
+            <output data-order-total aria-label="Order total">₹0</output>
+          </div>
+          <p id="checkout-empty" class="empty-note">0 items added. Please add items to continue.</p>
+          <button id="confirm-payment" class="button" type="submit" disabled>Confirm Payment</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="confirmation" class="confirmation" aria-labelledby="confirmation-heading" hidden>
+      <span class="confirmation-tick" aria-hidden="true">✓</span>
+      <h1 id="confirmation-heading" tabindex="-1">Payment confirmed</h1>
+      <p class="order-id">Order ID: <strong id="order-id"></strong></p>
+    </section>
+  </main>
+
+  <template id="product-template">
+    <article class="product" role="group">
+      <div class="product-details">
+        <h2></h2>
+        <p class="unit-price"></p>
+      </div>
+      <div class="product-amount">
+        <div class="quantity">
+          <button class="decrease" type="button">−</button>
+          <span class="quantity-value">0</span>
+          <button class="increase" type="button">+</button>
+        </div>
+        <div class="line-total">
+          <span>Line total</span>
+          <output>₹0</output>
+        </div>
+      </div>
+    </article>
+  </template>
+</body>
+</html>

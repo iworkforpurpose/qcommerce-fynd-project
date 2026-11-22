@@ -1,0 +1,10 @@
+> test
+> playwright test
+
+Running 3 tests using 1 worker
+
+  ✓  1 [chromium] › tests/checkout.spec.js:8:1 › a valid checkout shows one payment confirmation with an order ID (513ms)
+  ✓  2 [chromium] › tests/checkout.spec.js:20:1 › a whitespace-only name blocks checkout and preserves the entered data (247ms)
+  ✓  3 [chromium] › tests/checkout.spec.js:35:1 › quantity changes update the exact line and order totals across all views (460ms)
+
+  3 passed (2.1s)
