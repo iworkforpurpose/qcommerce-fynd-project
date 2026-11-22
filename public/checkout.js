@@ -20,16 +20,38 @@ const cartEmpty = document.querySelector('#cart-empty');
 const checkoutEmpty = document.querySelector('#checkout-empty');
 const checkoutProducts = document.querySelector('#checkout-products');
 const checkoutButton = document.querySelector('#go-to-checkout');
-const paymentForm = document.querySelector('#payment-form');
-const confirmButton = document.querySelector('#confirm-payment');
+const orderForm = document.querySelector('#order-form');
+const placeOrderButton = document.querySelector('#place-order');
+const orderError = document.querySelector('#order-error');
 const nameField = document.querySelector('#name');
 const nameError = document.querySelector('#name-error');
 const confirmation = document.querySelector('#confirmation');
+const orderReference = document.querySelector('#order-id');
+const newOrderButton = document.querySelector('#new-order');
 const template = document.querySelector('#product-template');
 let orderId = '';
 
 function itemCount() {
   return products.reduce((count, product) => count + product.quantity, 0);
+}
+
+function makeOrderId() {
+  const crypto = globalThis.crypto;
+  if (typeof crypto?.randomUUID === 'function') {
+    return `ORD-${crypto.randomUUID().toUpperCase()}`;
+  }
+
+  const bytes = new Uint8Array(16);
+  if (typeof crypto?.getRandomValues === 'function') {
+    crypto.getRandomValues(bytes);
+  } else {
+    for (let index = 0; index < bytes.length; index++) {
+      bytes[index] = Math.floor(Math.random() * 256);
+    }
+  }
+
+  const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+  return `ORD-${hex.toUpperCase()}`;
 }
 
 function mountProduct(container, product, showWhenEmpty) {
@@ -80,7 +102,7 @@ function renderCart() {
   checkoutProducts.hidden = empty;
   checkoutButton.disabled = empty;
   setText(checkoutButton, empty ? 'Add items to continue' : 'Go to Checkout');
-  confirmButton.disabled = empty || Boolean(orderId);
+  placeOrderButton.disabled = empty || Boolean(orderId);
 }
 
 function changeQuantity(product, delta) {
@@ -97,6 +119,7 @@ function showView(moveFocus) {
   for (const view of [...Object.values(views), confirmation]) {
     view.hidden = view !== current;
   }
+  cartCount.hidden = current === confirmation;
 
   if (moveFocus) {
     window.scrollTo(0, 0);
@@ -123,19 +146,44 @@ checkoutButton.addEventListener('click', () => {
   window.location.hash = 'checkout';
 });
 
-paymentForm.addEventListener('submit', (event) => {
+orderForm.addEventListener('submit', (event) => {
   event.preventDefault();
   if (orderId || itemCount() === 0) return;
 
-  if (!nameField.value.trim()) {
-    setNameError(true);
-    nameField.focus();
-    return;
-  }
+  try {
+    if (!nameField.value.trim()) {
+      orderError.hidden = true;
+      setNameError(true);
+      nameField.focus();
+      return;
+    }
 
-  orderId = `ORD-${crypto.randomUUID().toUpperCase()}`;
-  confirmButton.disabled = true;
-  document.querySelector('#order-id').textContent = orderId;
+    const nextOrderId = makeOrderId();
+    orderId = nextOrderId;
+    orderReference.textContent = nextOrderId;
+    orderError.hidden = true;
+    placeOrderButton.disabled = true;
+    showView(true);
+  } catch (error) {
+    orderId = '';
+    orderReference.textContent = '';
+    placeOrderButton.disabled = false;
+    setNameError(false);
+    showView(false);
+    orderError.hidden = false;
+    console.error('Could not place order', error);
+  }
+});
+
+newOrderButton.addEventListener('click', () => {
+  for (const product of products) product.quantity = 0;
+  orderForm.reset();
+  setNameError(false);
+  orderError.hidden = true;
+  orderId = '';
+  orderReference.textContent = '';
+  renderCart();
+  window.history.replaceState(null, '', '#shop');
   showView(true);
 });
 

@@ -1,26 +1,41 @@
 # Checkout test results
 
-Run on 22 November 2026 on macOS with Playwright 1.64.1 and Chromium 156.0.8078.4.
+Verified on 22 November 2026 on macOS with Node.js 20.20.0, Playwright 1.64.1, and Chromium 156.0.8078.4.
 
-## Automated
+## Automated run
 
-`npm test` passed all three checks. [Playwright output](evidence/playwright-run.txt)
+`npm test` passed all eight checks. [Recorded terminal output](evidence/playwright-run.txt)
 
 | Case | Actual result |
 | --- | --- |
-| Successful checkout | One visible confirmation and one order ID. |
-| Missing name | The name warning appeared, the entered spaces and ₹999 total remained, and checkout stayed open. |
-| Exact totals | Rapid quantity clicks updated the count and totals as expected. The final Checkout showed 5 items and ₹9,495. |
+| A1 · Successful checkout | One **Order confirmed** heading appeared with a visible order reference. |
+| A2 · Blank or whitespace name | Both attempts showed the validation alert. The entered spaces, Creatine, and ₹999 total remained. |
+| A3 · Exact totals | Two Protein and one Creatine gave line totals of ₹4,998 and ₹999 and an order total of ₹5,997. Removing Creatine reduced the total to ₹4,998. |
+| A4 · Repeated submission | Three `requestSubmit()` calls produced one confirmation and one order ID element. The first reference stayed unchanged. |
+| A5 · Missing UUID API | Checkout showed a valid reference after `Crypto.prototype.randomUUID` was removed before load. |
+| A6 · Empty checkout | A direct visit showed the warning and disabled **Place Order**. No confirmation appeared. |
+| A7 · New order | The header count was hidden on confirmation. Reset returned to Shop with zero items, cleared the reference, and left the next checkout's name blank. |
+| A8 · Unexpected ID error | Checkout showed a retry alert and preserved the name and cart. The next submission succeeded. |
 
-## Manual
+## DEFECT-1 · Checkout fails silently without `crypto.randomUUID`
 
-I drove a separate, headed Chromium session one step at a time using Playwright browser input. Follow the [test plan](TEST-PLAN.md) to repeat the checks with a mouse.
+- **Severity** Medium.
+- **Discovery** Found during code review and reproduced in Chromium by deleting `Crypto.prototype.randomUUID` before loading the original checkout.
+- **Steps** Open the original build over a non-secure HTTP origin, or remove `Crypto.prototype.randomUUID` with a browser init script to simulate the missing API. Add one Protein, proceed to Checkout, enter `Asha Rao`, and click the order submission button.
+- **Expected** An order confirmation appears with an order ID.
+- **Actual before the fix** The browser reported `TypeError: crypto.randomUUID is not a function`. Checkout stayed open with no alert or confirmation, and the submit button remained enabled.
+- **Fix** `makeOrderId()` generates the reference before updating order state. It uses `randomUUID`, then `getRandomValues`, then `Math.random` as the available APIs allow. A `try/catch` shows an alert on unexpected failure and preserves the form for retry.
+- **Verification** A5 passed after failing against the original code. A8 confirmed recovery from a thrown error. A separate Chromium run used `http://checkout.test:4173/` mapped to loopback, reported `isSecureContext === false` with no `randomUUID`, and showed an order reference. A browser probe with both crypto methods removed also completed an order. [Current confirmation screenshot](evidence/order-confirmation.png)
 
-| Case | Actual result | Evidence |
+## Headed browser checks
+
+The earlier empty-cart and rapid double-click checks were driven with Playwright pointer input in a headed Chromium window. They were previously called manual checks. They show how that browser responded to the recorded pointer actions. They do not establish behavior for physical mouse timing, touch input, other browsers, or devices. The historical screenshots and trace show the original build.
+
+| Case | Observed behavior in the earlier run | Evidence |
 | --- | --- | --- |
-| Empty cart | Cart showed ₹0 and the disabled **Add items to continue** button. Clicking it left Cart open. Opening Checkout directly showed ₹0, the empty-cart message, and a disabled **Confirm Payment** button. Entering a name and attempting to click still produced zero confirmations. | [Cart](evidence/empty-cart.png), [Checkout](evidence/empty-checkout.png) |
-| Rapid double-click | A double-click on **Confirm Payment** showed a green tick and one order ID, `ORD-B9EBD2D0-04A3-4C75-9DDE-6A16B8A4174F`. The confirmation count was 1 and the payment button disappeared. | [Confirmation](evidence/double-click-confirmation.png) |
+| Empty cart | Cart showed ₹0 with progression disabled. Opening Checkout directly and entering a name left submission disabled, with no order confirmation. | [Cart screenshot](evidence/empty-cart.png), [Checkout screenshot](evidence/empty-checkout.png) |
+| Rapid double-click | The browser displayed one confirmation with a green tick and one order reference. The submit button disappeared. | [Original confirmation screenshot](evidence/double-click-confirmation.png) |
 
-Zero checkout defects were observed in these checks.
+The updated build also passed the headed Playwright pointer checks for the empty Cart, direct empty Checkout, and rapid double-click. A separate browser check removed the last item from Checkout and verified that **Place Order** became disabled while the entered name remained. The current screenshot shows the new wording and reset button on the non-secure origin. [Earlier headed browser trace](evidence/manual-browser-trace.zip) · [Current confirmation screenshot](evidence/order-confirmation.png)
 
-The [manual browser trace](evidence/manual-browser-trace.zip) records the empty-cart click attempts and the rapid double-click. Open it locally with `npx playwright show-trace evidence/manual-browser-trace.zip`.
+**No other defects found in these checks.**

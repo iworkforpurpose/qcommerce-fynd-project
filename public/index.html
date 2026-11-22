@@ -51,7 +51,7 @@
       <h1 id="checkout-heading" tabindex="-1">Checkout</h1>
       <div class="order-layout">
         <div id="checkout-products" class="product-list"></div>
-        <form id="payment-form" class="summary" novalidate>
+        <form id="order-form" class="summary" novalidate>
           <label for="name">Name</label>
           <input id="name" name="name" type="text" autocomplete="name" placeholder="Enter your name" required>
           <p id="name-error" class="field-error" role="alert" hidden>Please enter your name to continue.</p>
@@ -60,15 +60,17 @@
             <output data-order-total aria-label="Order total">₹0</output>
           </div>
           <p id="checkout-empty" class="empty-note">0 items added. Please add items to continue.</p>
-          <button id="confirm-payment" class="button" type="submit" disabled>Confirm Payment</button>
+          <p id="order-error" class="field-error" role="alert" hidden>Something went wrong. Please try again.</p>
+          <button id="place-order" class="button" type="submit" disabled>Place Order</button>
         </form>
       </div>
     </section>
 
     <section id="confirmation" class="confirmation" aria-labelledby="confirmation-heading" hidden>
       <span class="confirmation-tick" aria-hidden="true">✓</span>
-      <h1 id="confirmation-heading" tabindex="-1">Payment confirmed</h1>
+      <h1 id="confirmation-heading" tabindex="-1">Order confirmed</h1>
       <p class="order-id">Order ID: <strong id="order-id"></strong></p>
+      <button id="new-order" class="button" type="button">Start a new order</button>
     </section>
   </main>
 

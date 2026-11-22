@@ -1,10 +1,17 @@
+
 > test
 > playwright test
 
-Running 3 tests using 1 worker
 
-  ✓  1 [chromium] › tests/checkout.spec.js:8:1 › a valid checkout shows one payment confirmation with an order ID (513ms)
-  ✓  2 [chromium] › tests/checkout.spec.js:20:1 › a whitespace-only name blocks checkout and preserves the entered data (247ms)
-  ✓  3 [chromium] › tests/checkout.spec.js:35:1 › quantity changes update the exact line and order totals across all views (460ms)
+Running 8 tests using 1 worker
 
-  3 passed (2.1s)
+  ✓  1 [chromium] › tests/checkout.spec.js:44:1 › a valid checkout shows one confirmation with an order ID (557ms)
+  ✓  2 [chromium] › tests/checkout.spec.js:54:1 › a blank or whitespace-only name blocks checkout and preserves the entered data (314ms)
+  ✓  3 [chromium] › tests/checkout.spec.js:73:1 › quantity changes update the exact line and order totals (184ms)
+  ✓  4 [chromium] › tests/checkout.spec.js:87:1 › double submit produces one confirmation (263ms)
+  ✓  5 [chromium] › tests/checkout.spec.js:109:1 › order ID fallback works without crypto.randomUUID (310ms)
+  ✓  6 [chromium] › tests/checkout.spec.js:121:1 › empty cart blocks checkout (86ms)
+  ✓  7 [chromium] › tests/checkout.spec.js:131:1 › start a new order resets state (482ms)
+  ✓  8 [chromium] › tests/checkout.spec.js:155:1 › an unexpected ID error preserves the form and allows a retry (313ms)
+
+  8 passed (3.5s)
