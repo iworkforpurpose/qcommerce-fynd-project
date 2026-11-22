@@ -29,12 +29,13 @@ The owner also checked the total before and after removing Creatine, the blank-n
 ## DEFECT-1 · Checkout fails silently without `crypto.randomUUID`
 
 - **Severity** Medium.
-- **Discovery** Found during code review and reproduced in Chromium by deleting `Crypto.prototype.randomUUID` before loading the original checkout.
+- **Discovery** Found during code review. The project owner separately reported reproducing the original missing-`randomUUID` failure.
 - **Steps** Open the original build over a non-secure HTTP origin, or remove `Crypto.prototype.randomUUID` with a browser init script to simulate the missing API. Add one Protein, proceed to Checkout, enter `Asha Rao`, and click the order submission button.
 - **Expected** An order confirmation appears with an order ID.
 - **Actual before the fix** The browser reported `TypeError: crypto.randomUUID is not a function`. Checkout stayed open with no alert or confirmation, and the submit button remained enabled.
 - **Fix** `makeOrderId()` generates the reference before updating order state. It uses `randomUUID`, then `getRandomValues`, then `Math.random` as the available APIs allow. A `try/catch` shows an alert on unexpected failure and preserves the form for retry.
-- **Verification** A5 passed after failing against the original code. A8 confirmed recovery from a thrown error. A separate Chromium run used `http://checkout.test:4173/` mapped to loopback, reported `isSecureContext === false` with no `randomUUID`, and showed an order reference. A browser probe with both crypto methods removed also completed an order. [Current confirmation screenshot](evidence/order-confirmation.png)
+- **Verification on the current build** The saved Playwright output records A5 passing with `randomUUID` removed and A8 passing after an injected error and retry. [Recorded terminal output](evidence/playwright-run.txt)
+- **Reported development runs** During development, an earlier version of A5 was reported to fail against the original code. A separate Chromium run at `http://checkout.test:4173/`, mapped to loopback, was reported to show an order reference with `isSecureContext === false` and `randomUUID` unavailable. Those two observations have no archived run logs or traces for independent verification. A separate probe also reported success with both crypto methods removed. The screenshot shows the confirmation UI and its reference. [Current confirmation screenshot](evidence/order-confirmation.png)
 
 ## Headed browser checks
 
@@ -45,6 +46,6 @@ The earlier empty-cart and rapid double-click checks were driven with Playwright
 | Empty cart | Cart showed ₹0 with progression disabled. Opening Checkout directly and entering a name left submission disabled, with no order confirmation. | [Cart screenshot](evidence/empty-cart.png), [Checkout screenshot](evidence/empty-checkout.png) |
 | Rapid double-click | The browser displayed one confirmation with a green tick and one order reference. The submit button disappeared. | [Original confirmation screenshot](evidence/double-click-confirmation.png) |
 
-The updated build also passed the headed Playwright pointer checks for the empty Cart, direct empty Checkout, and rapid double-click. A separate browser check removed the last item from Checkout and verified that **Place Order** became disabled while the entered name remained. The current screenshot shows the new wording and reset button on the non-secure origin. [Earlier headed browser trace](evidence/manual-browser-trace.zip) · [Current confirmation screenshot](evidence/order-confirmation.png)
+The updated build also passed the headed Playwright pointer checks for the empty Cart, direct empty Checkout, and rapid double-click. A separate browser check removed the last item from Checkout and verified that **Place Order** became disabled while the entered name remained. [Earlier headed browser trace](evidence/manual-browser-trace.zip)
 
 **No other defects found in these checks.**

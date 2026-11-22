@@ -1,5 +1,9 @@
 # Checkout test plan
 
+Prioritize accurate totals, checkout validation, and one confirmation with a valid order ID.
+
+Run eight Playwright checks, then test the empty cart and a rapid double-click with a mouse.
+
 ## 1. Scope and out of scope
 
 Test the browser flow from Shop through Cart and Checkout to Order confirmed. Cover quantity changes and totals, validation, repeat submissions, reference generation, and starting a new order.
