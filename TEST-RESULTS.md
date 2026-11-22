@@ -4,7 +4,7 @@ Verified on 22 November 2026 on macOS with Node.js 20.20.0, Playwright 1.64.1, a
 
 ## Automated run
 
-`npm test` passed all eight checks. [Recorded terminal output](evidence/playwright-run.txt)
+`npm test` passed all eight checks. The project owner also ran the suite locally on their Mac and shared the result `8 passed (3.4s)`. [Recorded terminal output](evidence/playwright-run.txt)
 
 | Case | Actual result |
 | --- | --- |
@@ -16,6 +16,15 @@ Verified on 22 November 2026 on macOS with Node.js 20.20.0, Playwright 1.64.1, a
 | A6 · Empty checkout | A direct visit showed the warning and disabled **Place Order**. No confirmation appeared. |
 | A7 · New order | The header count was hidden on confirmation. Reset returned to Shop with zero items, cleared the reference, and left the next checkout's name blank. |
 | A8 · Unexpected ID error | Checkout showed a retry alert and preserved the name and cart. The next submission succeeded. |
+
+## Manual checks reported by the project owner
+
+| Check | Observed result |
+| --- | --- |
+| M1 · Empty Cart and direct Checkout | Cart showed ₹0 and **Add items to continue** was disabled. On the direct Checkout URL, entering a name left **Place Order** disabled. The empty-cart message stayed visible and no confirmation appeared. |
+| M2 · Rapid double-click | A rapid double-click on **Place Order** produced one **Order confirmed** heading and one order ID. |
+
+The owner also checked the total before and after removing Creatine, the blank-name warning, and the return to Shop with zero items after clicking **Start a new order**. These manual results are based on the owner's report. The screenshots and trace below come from the separate Playwright sessions.
 
 ## DEFECT-1 · Checkout fails silently without `crypto.randomUUID`
 
